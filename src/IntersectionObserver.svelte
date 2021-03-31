@@ -45,11 +45,25 @@
   /** @type {null | IntersectionObserver} */
   export let observer = null;
 
-  import { tick, createEventDispatcher, onDestroy, afterUpdate } from "svelte";
+  import { tick, createEventDispatcher, onDestroy, onMount, afterUpdate } from "svelte";
 
   const dispatch = createEventDispatcher();
 
   let prevElement = null;
+
+  onMount(() => {
+    if (typeof window !== "undefined") {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((_entry) => {
+            entry = _entry;
+            intersecting = _entry.isIntersecting;
+          });
+        },
+        { root, rootMargin, threshold }
+      );
+    }
+  });
 
   afterUpdate(async () => {
     if (entry !== null) {
@@ -75,18 +89,6 @@
   onDestroy(() => {
     if (observer) observer.disconnect();
   });
-
-  $: if (typeof window !== "undefined") {
-    observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((_entry) => {
-          entry = _entry;
-          intersecting = _entry.isIntersecting;
-        });
-      },
-      { root, rootMargin, threshold }
-    );
-  }
 </script>
 
 <slot {intersecting} {entry} {observer} />
